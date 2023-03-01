@@ -34,21 +34,25 @@ def get_dict(data):
     movie.update(options)
     return movie
 
-def queue_movie(title):
-    movie = get_dict(search_movie(title))
-    req2=requests.post(URL,headers=headers,json=movie)
-    get_error(req2)
-
 def get_poster(movie):
     poster = movie['images'][0]['remoteUrl']
     return poster
 
 def get_error(req):
+    info = []
     try:
-        print("just added:")
-        print(json.loads(req.text)[0]['title'])
+        info.append(json.loads(req.text)[0]['title']+" was just queued for download")
     except KeyError:
-        print("error:")
-        print(json.loads(req.text)[0]['errorMessage'])
+        info.append(json.loads(req.text)[0]['errorMessage'])
+    return info
         
+def queue_movie(title):
+    movie = get_dict(search_movie(title))
+    req2=requests.post(URL,headers=headers,json=movie)
+
+    info = get_error(req2)
+    info.append(get_poster(movie))
+    
+    return info
+
 queue_movie(title)
